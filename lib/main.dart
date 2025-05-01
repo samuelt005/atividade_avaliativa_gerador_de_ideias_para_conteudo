@@ -1,6 +1,6 @@
-import 'dart:convert'; // Import for jsonDecode
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Import for Clipboard
+import 'package:flutter/services.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 void main() {
@@ -15,9 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Gerador de Ideias de Conteúdo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
@@ -48,11 +46,10 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _topicController = TextEditingController();
 
   bool _isLoading = false;
-  List<Map<String, dynamic>> _generatedIdeas = []; // Store parsed ideas
+  List<Map<String, dynamic>> _generatedIdeas = [];
   String? _errorMessage;
   GenerativeModel? _model;
 
-  // --- Helper function to build the text for copying ---
   String _buildCopyText(Map<String, dynamic> idea) {
     final title = idea['titulo'] ?? 'Sem Título';
     final audience = idea['publico_alvo'] ?? 'Não especificado';
@@ -71,7 +68,6 @@ $outlineString
   }
 
   Future<void> _generateContentIdeas() async {
-    // --- Input Validations (unchanged) ---
     if (_apiKeyController.text.trim().isEmpty) {
       setState(() {
         _errorMessage = 'Por favor, insira sua Chave de API do Google AI.';
@@ -86,28 +82,20 @@ $outlineString
       });
       return;
     }
-    // --- ---
 
     setState(() {
       _isLoading = true;
-      _generatedIdeas = []; // Clear previous ideas
+      _generatedIdeas = [];
       _errorMessage = null;
     });
 
     try {
-      // --- Initialize Model (mostly unchanged) ---
       _model = GenerativeModel(
         model: 'gemini-1.5-flash-latest',
         apiKey: _apiKeyController.text.trim(),
-        generationConfig: GenerationConfig(
-          temperature: 0.7, // Slightly lower temp for more structured JSON
-          // Ensure response mimetype is explicitly set if needed,
-          // though usually handled by the prompt itself for Gemini.
-        ),
+        generationConfig: GenerationConfig(temperature: 0.7),
       );
-      // --- ---
 
-      // --- *** MODIFIED PROMPT FOR JSON *** ---
       final prompt = '''
       Aja como um especialista em criação de conteúdo digital.
       Gere 3 ideias de conteúdo (para blog ou rede social) sobre o seguinte nicho/tópico: "${_topicController.text}".
@@ -135,7 +123,6 @@ $outlineString
         }
       ]
       ''';
-      // --- *** END OF MODIFIED PROMPT *** ---
 
       final content = [Content.text(prompt)];
       final response = await _model!.generateContent(content);
@@ -145,9 +132,7 @@ $outlineString
         throw Exception("A API retornou uma resposta vazia.");
       }
 
-      // --- *** PARSE JSON RESPONSE *** ---
       try {
-        // Clean the response text slightly just in case (remove potential backticks)
         final cleanJsonResponse =
             responseText
                 .trim()
@@ -158,22 +143,18 @@ $outlineString
         final decodedJson = jsonDecode(cleanJsonResponse);
 
         if (decodedJson is List) {
-          // Ensure it's List<Map<String, dynamic>>
           _generatedIdeas = List<Map<String, dynamic>>.from(
             decodedJson.map((item) {
               if (item is Map) {
-                // Make sure nested 'esboco' is List<String>
                 if (item.containsKey('esboco') && item['esboco'] is List) {
                   item['esboco'] = List<String>.from(item['esboco']);
                 } else {
-                  // Handle case where 'esboco' might be missing or wrong type
                   item['esboco'] = <String>[
                     'Esboço indisponível ou formato inválido',
                   ];
                 }
-                return Map<String, dynamic>.from(item); // Cast inner maps too
+                return Map<String, dynamic>.from(item);
               } else {
-                // Handle unexpected item type in the list
                 return <String, dynamic>{
                   'titulo': 'Erro: Item inválido',
                   'publico_alvo': '',
@@ -189,16 +170,15 @@ $outlineString
         }
       } catch (e) {
         print('Erro ao decodificar JSON: $e');
-        print('Resposta recebida da API: $responseText'); // Log raw response
+        print('Resposta recebida da API: $responseText');
         throw FormatException(
           "Erro ao processar a resposta da API. Resposta não está no formato JSON esperado. Detalhes: ${e.toString()}",
         );
       }
-      // --- *** END OF JSON PARSING *** ---
 
       setState(() {
         _isLoading = false;
-        _errorMessage = null; // Clear error on success
+        _errorMessage = null;
       });
     } catch (e) {
       print('Erro ao gerar conteúdo: $e');
@@ -206,7 +186,7 @@ $outlineString
         _errorMessage =
             'Ocorreu um erro: ${e.toString()}. Verifique sua chave de API, conexão e se a resposta da API está correta.';
         _isLoading = false;
-        _generatedIdeas = []; // Clear ideas on error
+        _generatedIdeas = [];
       });
     }
   }
@@ -220,22 +200,18 @@ $outlineString
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme; // Get text theme
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        backgroundColor:
-            Theme.of(
-              context,
-            ).colorScheme.inversePrimary, // Added for better AppBar visibility
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // --- Input Fields (unchanged appearance) ---
             TextField(
               controller: _apiKeyController,
               decoration: const InputDecoration(
@@ -260,7 +236,6 @@ $outlineString
             ),
             const SizedBox(height: 20.0),
 
-            // --- ---
             ElevatedButton.icon(
               icon: const Icon(Icons.lightbulb_outline),
               label: const Text('Gerar Ideias'),
@@ -270,11 +245,9 @@ $outlineString
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
-                // Bolder text
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 shape: RoundedRectangleBorder(
-                  // Rounded corners
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -282,34 +255,28 @@ $outlineString
             ),
             const SizedBox(height: 25.0),
 
-            // --- Section Title ---
             Row(
-              // Use Row for title and divider alignment
               children: [
                 Text(
                   'Ideias Geradas:',
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                  ), // Use headlineSmall
+                  ),
                 ),
                 const Expanded(child: Divider(indent: 8, thickness: 1)),
               ],
             ),
-            //const Divider(), // Divider moved above or integrated
             const SizedBox(height: 10.0),
 
-            // --- Display Area ---
             _isLoading
                 ? const Center(
                   child: Padding(
-                    // Add padding around indicator
                     padding: EdgeInsets.all(32.0),
                     child: CircularProgressIndicator(),
                   ),
                 )
                 : _errorMessage != null
                 ? Container(
-                  // Add background for error message
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.red.withOpacity(0.1),
@@ -325,16 +292,13 @@ $outlineString
                     textAlign: TextAlign.center,
                   ),
                 )
-                : _generatedIdeas
-                    .isEmpty // Check if the list is empty
+                : _generatedIdeas.isEmpty
                 ? const Text(
                   'Insira seu nicho acima e clique em "Gerar Ideias" para começar.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey),
                 )
-                // --- *** DISPLAY CARDS *** ---
                 : Column(
-                  // Build Cards from the list
                   children:
                       _generatedIdeas.map((idea) {
                         final title =
@@ -347,13 +311,13 @@ $outlineString
                             (idea['esboco'] as List<dynamic>?)
                                 ?.map(
                                   (e) => e.toString(),
-                                ) // Ensure elements are strings
+                                )
                                 ?.toList() ??
                             ['Esboço não disponível'];
 
                         final copyContent = _buildCopyText(
                           idea,
-                        ); // Get text for copy button
+                        );
 
                         return Card(
                           child: Padding(
@@ -361,17 +325,15 @@ $outlineString
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Title
                                 Text(
                                   title,
                                   style: textTheme.titleLarge?.copyWith(
                                     color:
                                         Theme.of(context).colorScheme.primary,
-                                  ), // Style Title
+                                  ),
                                 ),
                                 const SizedBox(height: 12),
 
-                                // Audience
                                 Text(
                                   'Público-Alvo:',
                                   style: textTheme.titleSmall?.copyWith(
@@ -382,7 +344,6 @@ $outlineString
                                 Text(audience, style: textTheme.bodyMedium),
                                 const SizedBox(height: 12),
 
-                                // Outline
                                 Text(
                                   'Esboço Rápido:',
                                   style: textTheme.titleSmall?.copyWith(
@@ -399,7 +360,6 @@ $outlineString
                                           bottom: 2,
                                         ),
                                         child: Row(
-                                          // Use Row for bullet point
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
@@ -422,7 +382,6 @@ $outlineString
                                     .toList(),
                                 const SizedBox(height: 16),
 
-                                // --- Copy Button ---
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: TextButton.icon(
@@ -449,7 +408,6 @@ $outlineString
                                         vertical: 8,
                                       ),
                                       textStyle: const TextStyle(fontSize: 14),
-                                      // foregroundColor: Theme.of(context).colorScheme.primary // Optional color override
                                     ),
                                   ),
                                 ),
@@ -459,7 +417,6 @@ $outlineString
                         );
                       }).toList(),
                 ),
-            // --- *** END OF DISPLAY CARDS *** ---
           ],
         ),
       ),
