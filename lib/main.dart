@@ -15,17 +15,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Gerador de Ideias de Conteúdo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        cardTheme: CardTheme(
-          // Add some default card styling
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.black,
         ),
+        useMaterial3: true,
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.white,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: ThemeMode.system,
+      debugShowCheckedModeBanner: false,
       home: const HomePage(title: 'Gerador de Ideias de Conteúdo'),
     );
   }
@@ -242,11 +245,6 @@ $outlineString
                 prefixIcon: Icon(Icons.vpn_key),
               ),
               obscureText: true,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'AVISO: Para projetos reais, não insira a chave diretamente aqui. Use métodos seguros!',
-              style: TextStyle(color: Colors.orange[700], fontSize: 12),
             ),
             const SizedBox(height: 20.0),
 
