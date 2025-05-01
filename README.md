@@ -10,9 +10,9 @@ opção de copiar o texto gerado.
 
 ## Capturas de Tela
 
-|              Screenshot 1               |              Screenshot 2              |              Screenshot 3              |
-|:---------------------------------------:|:--------------------------------------:|:--------------------------------------:|
-| ![Exemplo 1](screenshots/example_1.jpg) | [Exemplo 2](screenshots/example_2.jpg) | [Exemplo 3](screenshots/example_3.jpg) |
+|              Screenshot 1               |              Screenshot 2               |              Screenshot 3               |
+|:---------------------------------------:|:---------------------------------------:|:---------------------------------------:|
+| ![Exemplo 1](screenshots/example_1.jpg) | ![Exemplo 2](screenshots/example_2.jpg) | ![Exemplo 3](screenshots/example_3.jpg) |
 
 ## Funcionalidades
 
